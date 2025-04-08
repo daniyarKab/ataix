@@ -1,5 +1,5 @@
 import json
-import os
+import os, sys
 import requests
 
 API_KEY = ""
@@ -81,6 +81,7 @@ print("-" * 50)
 print("If an order is filled, status will be 'filled'. Otherwise it will be updated to 'cancelled'.")
 print("-" * 50)
 
+is_filled = False
 for idx, order_id in enumerate(order_ids):
     order_status_response = send_api_request(f"/api/orders/{order_id}", "get")
 
@@ -88,6 +89,7 @@ for idx, order_id in enumerate(order_ids):
         for entry in order_data:
             if entry["orderID"] == order_id:
                 entry["status"] = "filled"
+        is_filled = True
     else:
         print(f"OrderID: {order_id}\t Price: {order_prices[idx]}$\t Status: {order_statuses[idx]}")
         pending_order_ids.append(order_id)
@@ -98,6 +100,10 @@ for idx, order_id in enumerate(order_ids):
 
     with open("orders_data.json", "w", encoding="utf-8") as file:
         json.dump(order_data, file, indent=4, ensure_ascii=False)
+
+if is_filled:
+    print("All orders done!")
+    sys.exit()
 
 print("=" * 50)
 print("CANCELLING UNFILLED ORDERS")
